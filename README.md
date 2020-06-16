@@ -16,7 +16,26 @@ The detailed instruction is provided below.
 
 # Dataset
 ------
-You can find corresponding links of each dataset in the page as below.
+We provide the links for COVID-19 public datasets, which are used in our recent publication, "Deep Learning COVID-19 on CXR using Limited Training Data Sets".
+https://ieeexplore.ieee.org/document/9090149
+
+These public CXR datasets are available without any restrction by downloading in below links.​
+
+[19] JSRT                http://db.jsrt.or.jp/eng.php
+[20] SCR                 https://www.isi.uu.nl/Research/Databases/SCR/download.php
+[21] NLM(MC)            http://academictorrents.com/details/ac786f74878a5775c81d490b23842fd4736bfe33
+[22] Pneumonia          https://www.kaggle.com/praveengovi/coronahack-chest-xraydataset
+[23] COVID-19           https://github.com/ieee8023/covid-chestxray-dataset
+
+Please reference the metadata for your information.
+https://github.com/jongcye/Deep-Learning-COVID-19-on-CXR-using-Limited-Training-Data-Sets/blob/master/metadata.xls
+
+To cite this,
+ 
+@ARTICLE{9090149, author={Y. {Oh} and S. {Park} and J. C. {Ye}}, journal={IEEE Transactions on Medical Imaging}, title={Deep Learning COVID-19 Features on CXR using Limited Training Data Sets}, year={2020}, volume={}, number={}, pages={1-1},}
+
+You can also find corresponding links of each dataset in the page as below.
+
 https://bispl.weebly.com/covid-19-data-link.html
 
 # Segmentation
