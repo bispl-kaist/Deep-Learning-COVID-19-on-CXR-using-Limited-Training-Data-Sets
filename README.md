@@ -14,6 +14,11 @@ After making segmentation masks, generated masks as well as preprocessed x-ray i
 
 The detailed instruction is provided below.
 
+# Dataset
+------
+You can find corresponding links of each dataset in the page as below.
+https://bispl.weebly.com/covid-19-data-link.html
+
 # Segmentation
 ------
 This is detailed instructions for the first step, segmentation.
