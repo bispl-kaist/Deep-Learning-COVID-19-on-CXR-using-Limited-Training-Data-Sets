@@ -20,6 +20,7 @@ We provide the links for COVID-19 public datasets, which are used in our recent 
 
 https://ieeexplore.ieee.org/document/9090149
 
+
 These public CXR datasets are available without any restrction by downloading in below links.​
 
 [19] JSRT                http://db.jsrt.or.jp/eng.php
@@ -33,9 +34,11 @@ These public CXR datasets are available without any restrction by downloading in
 [23] COVID-19           https://github.com/ieee8023/covid-chestxray-dataset
 
 
+
 Please reference the metadata for your information.
 
 https://github.com/jongcye/Deep-Learning-COVID-19-on-CXR-using-Limited-Training-Data-Sets/blob/master/metadata.xls
+
 
 
 To cite this,
@@ -45,6 +48,7 @@ To cite this,
 You can also find corresponding links of each dataset in the page as below.
 
 https://bispl.weebly.com/covid-19-data-link.html
+
 
 
 # Segmentation
