@@ -40,11 +40,6 @@ Please reference the metadata for your information.
 https://github.com/jongcye/Deep-Learning-COVID-19-on-CXR-using-Limited-Training-Data-Sets/blob/master/metadata.xls
 
 
-
-To cite this,
- 
-@ARTICLE{9090149, author={Y. {Oh} and S. {Park} and J. C. {Ye}}, journal={IEEE Transactions on Medical Imaging}, title={Deep Learning COVID-19 Features on CXR using Limited Training Data Sets}, year={2020}, volume={}, number={}, pages={1-1},}
-
 You can also find corresponding links of each dataset in the page as below.
 
 https://bispl.weebly.com/covid-19-data-link.html
