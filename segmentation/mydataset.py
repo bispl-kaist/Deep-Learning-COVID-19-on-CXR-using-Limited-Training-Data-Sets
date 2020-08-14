@@ -18,6 +18,10 @@ import os
 import glob
 from PIL import Image
 
+# add
+import csv
+import shutil
+
 
 class MyTrainDataset(Dataset):
 
@@ -190,7 +194,7 @@ class MyInferenceClass(Dataset):
     def __getitem__(self, index):
 
         # load image
-        images_original = np.asarray(Image.open(self.images[index]))
+        images_original = np.asarray(Image.open(self.images[index]).convert("L"))
 
         # crop blank area
         line_center = images_original[int(images_original.shape[0]/2):,int(images_original.shape[1]/2)]
@@ -213,7 +217,7 @@ class MyInferenceClass(Dataset):
     def get_original(self, index, flag=True):
 
         # load image
-        images = np.asarray(Image.open(self.images[index]))
+        images = np.asarray(Image.open(self.images[index]).convert("L"))
 
         # crop blank area
         line_center = images[int(images.shape[0]/2):,int(images.shape[1]/2)]
@@ -226,6 +230,276 @@ class MyInferenceClass(Dataset):
         return images
 
 
+class MyInferenceClassChest14(Dataset):
+
+    def __init__(self):
+
+        self.images = []
+
+        image_path = '../../../../../F/chestxray14/'
+        metadata = '../../../../../F/chestxray14/Data_Entry_2017.csv'
+        f = open(metadata)
+        read = csv.reader(f)
+        for line in read:
+            isfile = glob.glob(image_path + 'images_001/*/' + line[0])
+            # if (len(isfile) == 0):
+            #     isfile = glob.glob(image_path + '/images_002/*/' + line[0])
+            if (line[1].find('No Finding')>=0):
+                if (len(isfile)):
+                    self.images.append(isfile[0])
+        f.close()
+
+        self.images.sort()
+        total_len = len(self.images)
+        seed = 407
+        random.seed(seed)
+        list_division = random.sample(range(0, total_len), 829)
+        self.images = [self.images[k] for k in list_division]
+
+        if not os.path.isdir(image_path):
+            raise RuntimeError('Dataset not found or corrupted. DIR : ' + image_path)
+
+        self.ids = []   
+        for sample in self.images:
+            self.ids.append('/' + sample.split('/')[-1])
+            shutil.copy(sample, header.dir_save + 'Normal/')
+
+        self.data_len = len(self.images)
+
+
+    def __len__(self):
+        return self.data_len
+
+
+    def __getitem__(self, index):
+
+        # load image
+        images_original = np.asarray(Image.open(self.images[index]).convert("L"))
+
+        # crop blank area
+        line_center = images_original[int(images_original.shape[0]/2):,int(images_original.shape[1]/2)]
+        if(line_center.min() == 0):
+            images = images_original[:int(images_original.shape[0]/2)+np.where(line_center==0)[0][0],:]
+        else:
+            images = images_original
+        original_image_size = np.asarray(images.shape)
+
+        # preprocessing
+        images = pre_processing(images, flag_jsrt=0)
+        images = images.astype('float32')
+
+        # resize
+        images = np.asarray(Image.fromarray(images).resize((header.resize_width, header.resize_height)))
+
+        return {'input':np.expand_dims(images, 0), 'ids':self.ids[index], 'im_size':original_image_size}
+    
+
+    def get_original(self, index, flag=True):
+
+        # load image
+        images = np.asarray(Image.open(self.images[index]).convert("L"))
+
+        # crop blank area
+        line_center = images[int(images.shape[0]/2):,int(images.shape[1]/2)]
+        if (line_center.min() == 0):
+            images = images[:int(images.shape[0]/2)+np.where(line_center==0)[0][0],:]
+
+        # preprocessing
+        images = pre_processing(images, flag_jsrt=0)
+
+        return images
+
+
+class MyInferenceCohen(Dataset):
+
+    def __init__(self, tag):
+
+        self.images = []
+
+        image_path = '../../../../../F/covid-chestxray-dataset/images/'
+        metadata = '../../../../../F/covid-chestxray-dataset/metadata.csv'
+        f = open(metadata)
+        read = csv.reader(f)
+        for line in read:
+            if (line[4].find(tag)>=0):
+                if (line[19].find('X-ray')>=0):
+                    if (line[18].find('AP')>=0) | (line[18].find('PA')>=0):
+                        isfile = glob.glob(image_path + line[23])
+                        if (len(isfile)):
+                            self.images.append(isfile[0])
+                            shutil.copy(isfile[0], header.dir_save + tag + '/')
+        f.close()
+
+        # outlier
+        # ajr.20.23034.pdf-003
+        # aqaa062i0002-a
+        # aqaa062i0002-b
+
+        self.images.sort()
+        if not os.path.isdir(image_path):
+            raise RuntimeError('Dataset not found or corrupted. DIR : ' + image_path)
+
+        self.ids = []   
+        for sample in self.images:
+            self.ids.append('/' + sample.split('/')[-1])
+
+        self.data_len = len(self.images)
+
+
+    def __len__(self):
+        return self.data_len
+
+
+    def __getitem__(self, index):
+
+        # load image
+        images_original = np.asarray(Image.open(self.images[index]).convert("L"))
+
+        # crop blank area
+        line_center = images_original[int(images_original.shape[0]/2):,int(images_original.shape[1]/2)]
+        if(line_center.min() == 0):
+            images = images_original[:int(images_original.shape[0]/2)+np.where(line_center==0)[0][0],:]
+        else:
+            images = images_original
+        original_image_size = np.asarray(images.shape)
+
+        # preprocessing
+        images = pre_processing(images, flag_jsrt=0)
+        images = images.astype('float32')
+
+        # resize
+        images = np.asarray(Image.fromarray(images).resize((header.resize_width, header.resize_height)))
+
+        return {'input':np.expand_dims(images, 0), 'ids':self.ids[index], 'im_size':original_image_size}
+    
+
+    def get_original(self, index, flag=True):
+
+        # load image
+        images = np.asarray(Image.open(self.images[index]).convert("L"))
+
+        # crop blank area
+        line_center = images[int(images.shape[0]/2):,int(images.shape[1]/2)]
+        if (line_center.min() == 0):
+            images = images[:int(images.shape[0]/2)+np.where(line_center==0)[0][0],:]
+
+        # preprocessing
+        images = pre_processing(images, flag_jsrt=0)
+
+        return images
+
+
+class MyInferenceClassBIMCV(Dataset):
+
+    def __init__(self):
+
+        self.images = []
+        self.ids = []
+
+        dir_csv = '../../../../../F/COVID_BIMCV/COVID_BIMCV/V1.0/derivatives/labels/labels_covid19_posi.tsv'
+        image_path = '../../../../../F/COVID_BIMCV/COVID_BIMCV/V1.0/'
+
+        if not os.path.isdir(image_path):
+            raise RuntimeError('Dataset not found or corrupted. DIR : ' + image_path)
+
+        f = open(dir_csv)
+        read = csv.reader(f)
+    
+        for line in read:
+
+            if (line[0].find('COVID')>0):
+
+                line = line[0].split('\t')
+
+                # file name - pa
+                image = glob.glob(image_path + '*/' + line[1] + '/' + line[2] + '/*/*pa_*.png')
+                if (image.__len__()>0):
+                    self.images.append(image[0])
+
+                # ap
+                image = glob.glob(image_path + '*/' + line[1] + '/' + line[2] + '/*/*ap_*.png')
+                if (image.__len__()>0):
+                    self.images.append(image[0])
+
+        f.close()
+
+        # outlier (13-)
+        outlier = ['sub-S03542_ses-E07201_run-1_bp-chest_vp-pa_dx', 'sub-S03573_ses-E07272_run-1_bp-chest_vp-pa_cr', 
+                    'sub-S03634_ses-E08888_run-1_bp-chest_vp-ap_cr', 'sub-S03751_ses-E07576_run-1_bp-chest_vp-ap_cr', 
+                    'sub-S03810_ses-E07675_run-1_bp-chest_vp-pa_cr', 'sub-S03852_ses-E07775_run-1_bp-chest_vp-ap_cr', 
+                    'sub-S03897_ses-E07941_run-1_bp-chest_vp-ap_cr', 'sub-S03967_ses-E08122_run-1_bp-chest_vp-ap_dx', 
+                    'sub-S03996_ses-E08157_run-1_bp-chest_vp-ap_cr', 'sub-S04347_ses-E08656_run-1_bp-chest_vp-pa_cr',
+                    'sub-S03168_ses-E06915_run-1_bp-chest_vp-ap_dx', 'sub-S03232_ses-E07749_run-1_bp-chest_vp-ap_cr', 
+                    'sub-S03258_ses-E06425_run-1_bp-chest_vp-ap_dx', 'sub-S03404_ses-E06752_run-1_bp-chest_vp-pa_cr']
+        for k in outlier:
+            find_flag = np.asarray([l.find(k) for l in self.images])
+            if (np.sum(find_flag>0) > 0):
+                idx_flag = np.argmax(find_flag)
+                self.images.pop(idx_flag)
+            
+        for sample in self.images:
+            shutil.copy(sample, header.dir_save + 'COVID-19/')
+            self.ids.append('/' + sample.split('/')[-1])
+
+        self.data_len = len(self.images)
+                    
+
+    def __len__(self):
+        return self.data_len
+
+
+    def __getitem__(self, index):
+
+        # load image
+        images_original = np.asarray(Image.open(self.images[index]))
+
+        # # crop blank area
+        # line_center = images_original[int(images_original.shape[0]/2):,int(images_original.shape[1]/2)]
+        # if(line_center.min() == 0):
+        #     images = images_original[:int(images_original.shape[0]/2)+np.where(line_center==0)[0][0],:]
+        # else:
+        images = images_original
+        original_image_size = np.asarray(images.shape)
+
+        # invert
+        flag_invert = 0
+        line_top = np.mean(images[0,:])
+        if (line_top > 10000):
+            flag_invert = 10
+
+        # preprocessing
+        images = pre_processing(images, flag_jsrt=flag_invert)
+        images = images.astype('float32')
+
+        # resize
+        images = np.asarray(Image.fromarray(images).resize((header.resize_width, header.resize_height)))
+
+        return {'input':np.expand_dims(images, 0), 'ids':self.ids[index], 'im_size':original_image_size}
+    
+
+    def get_original(self, index, flag=True):
+
+        # load image
+        images = np.asarray(Image.open(self.images[index]))
+
+        # # crop blank area
+        # line_center = images[int(images.shape[0]/2):,int(images.shape[1]/2)]
+        # if (line_center.min() == 0):
+        #     images = images[:int(images.shape[0]/2)+np.where(line_center==0)[0][0],:]
+
+        # invert
+        flag_invert = 0
+        line_top = np.mean(images[0,:])
+        print('%d : %s' % (line_top, self.ids[index]))
+        if (line_top > 10000):
+            flag_invert = 10
+
+        # preprocessing
+        images = pre_processing(images, flag_jsrt=flag_invert)
+
+        return images
+
+
 def pre_processing(images, flag_jsrt = 10):
 
     # histogram
@@ -234,7 +508,7 @@ def pre_processing(images, flag_jsrt = 10):
 
     # histogram specification, gamma correction
     hist, bins = np.histogram(images.flatten(), num_bin, [0, num_bin])
-    cdf = hist_specification(hist, num_out_bit, images.min(), 1<<12, flag_jsrt)
+    cdf = hist_specification(hist, num_out_bit, images.min(), num_bin, flag_jsrt)
     images = cdf[images].astype('float32')
 
     return images
